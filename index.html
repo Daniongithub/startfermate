@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>START Romagna - Visualizza fermata</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="shortcut icon" href="img/favicon.ico">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+	<header>
+        <nav>
+            <ul>
+                <li><a href="/index.html"><h1 style="font-size: 100%;font-weight: 500;">Home</h1></a></li>
+                <li><a href="/ravenna_menu/ravenna.html"><h1 style="font-size: 100%;font-weight: 500;">Ravenna</h1></a></li>
+                <li><a href="/start_menu/start.html"><h1 style="font-size: 100%;font-weight: 500;">START Romagna</h1></a></li>
+            </ul>
+        </nav>
+    </header>
+    <h1>Visualizzatore fermate START Romagna</h1>
+    <label for="bacino">Bacino:</label>
+    <select id="bacino">
+        <option value="" selected>--Scegli un'opzione--</option>
+        <option value="ra">Ravenna</option>
+        <option value="rn">Rimini</option>
+        <option value="fc">Forlì-Cesena</option>
+    </select>
+    <div>
+        <label for="searchBar">Cerca fermata:</label>
+        <input type="text" id="searchBar" placeholder="Cerca una fermata...">
+    </div>
+    <div id="searchResults"></div>
+    <footer>
+        <p>Copyright (C) 2025 ER-TPL Team - <a href="https://ertpl.pages.dev" target="_blank">ertpl.pages.dev</a> - code by Il Dani <a href="https://git.vichingo455.freeddns.org/daniele/start-fermatebus" target="_blank">Codice Sorgente</a><br>
+        Start Romagna, Start e il logo Start Romagna sono marchi registrati e protetti da copyright da Start Romagna SpA. Vengono usati in questa pagina solo per riferimento.</p>
+    </footer>
+    <script src="js/cercafermata.js"></script>
+</body>
+</html>
