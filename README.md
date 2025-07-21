@@ -1,1 +1,1 @@
-Fronted for an ER-TPL project
+Frontend for an ER-TPL project
