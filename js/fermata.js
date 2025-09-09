@@ -3,8 +3,7 @@ const palina = params.get('palina');
 const targetID = params.get('targetID');
 const selectedOption = params.get('selectedOption');
 
-//const urlBackend = `https://api.vichingo455.freeddns.org/start-fermatebus.json/w?param=${targetID}&param2=${selectedOption}&palina=${palina}`;
-const urlBackend = `http://localhost:3005/fermata?param=${targetID}&param2=${selectedOption}&palina=${palina}`;
+const urlBackend = `https://api.vichingo455.freeddns.org/fermateapi/fermata?param=${targetID}&param2=${selectedOption}&palina=${palina}`;
 function caricadati(){
     fetch(urlBackend)
     .then(res => res.json())
@@ -12,10 +11,15 @@ function caricadati(){
         const fermata_span = document.getElementById('fermata-span');
         if (data[0] && data[0].fermata !== undefined) {
             fermata_span.innerHTML = `"${data[0].fermata}"`;
+            document.title = `Fermata ${data[0].fermata}`
         }
         const container = document.getElementById('tabella-container');
         container.innerHTML = '';
 
+        fetch('https://api.vichingo455.freeddns.org/fermateapi/versione')
+        .then(res => res.text())
+        .then(versione => document.getElementById("ver").innerHTML = versione);
+        
         if (!data || data.length === 0) {
             container.innerHTML = '<h3>Nessuna linea in arrivo.</h3>';
             return;
@@ -33,7 +37,6 @@ function caricadati(){
                         <th>Orario</th>
                         <th>Stato attuale</th>
                         <th>Veicolo</th>
-                        <th>Soppressa</th>
                     </tr>
                 `;
         table.appendChild(thead);
@@ -51,7 +54,6 @@ function caricadati(){
                         <td>${item.orario}</td>
                         <td>${item.stato}</td>
                         <td>${item.mezzo}</td>
-                        <td>${item.soppressa ? 'Sì' : 'No'}</td>
                     `;
             tbody.appendChild(tr);
         });
@@ -66,5 +68,6 @@ function caricadati(){
 }
 
 caricadati();
+
 
 setInterval(caricadati, 60000);
