@@ -1,11 +1,28 @@
+// API source code: https://github.com/Daniongithub/startfermate-api
+
+// New fallback system (HA)
+const API_ENDPOINT = "https://ertpl-api.vercel.app/startfermate";
+
+async function getApiUrl() {
+  const res = await fetch(API_ENDPOINT);
+  const cfg = await res.json();
+  if (cfg.status !== "ok") return null;
+  return cfg.url;
+}
+
 const params = new URLSearchParams(window.location.search);
 const palina = params.get('palina');
 const targetID = params.get('targetID');
 const selectedOption = params.get('selectedOption');
-
-const urlBackend = `https://api.vichingo455.freeddns.org/fermateapi/fermata?param=${targetID}&param2=${selectedOption}&palina=${palina}`;
+/*
+Anche se det e' null non c'e' problema: la API aspetta sia "true", altrimenti la visualizzazione non cambia.
+det impostato a "true" dice all'API di fornire l'output in maniera intera, senza applicare un filtro che scarta schifezze,
+ergo, visualizzazione dettagliata, che comunque all'utente finale non serve.
+*/
+const det = params.get('det');
 function caricadati(){
-    fetch(urlBackend)
+    getApiUrl().then(url => {
+        fetch(`${url}/fermata?param=${targetID}&param2=${selectedOption}&palina=${palina}&det=${det}`)
     .then(res => res.json())
     .then(data => {
         const fermata_span = document.getElementById('fermata-span');
@@ -16,11 +33,15 @@ function caricadati(){
         const container = document.getElementById('tabella-container');
         container.innerHTML = '';
 
-        fetch('https://api.vichingo455.freeddns.org/fermateapi/versione')
+        fetch(`${url}/versione`)
         .then(res => res.text())
         .then(versione => document.getElementById("ver").innerHTML = versione);
         
-        if (!data || data.length === 0) {
+        /*
+        Se capita una fermata pulita dall'API, perche' contiene solo spazzatura, rimane solo data[0], che però fa creare al JS la thead
+        anche se non ci sono risultati effettivi.
+        */
+        if (!data || data.length === 0 || !data[1]) {
             container.innerHTML = '<h3>Nessuna linea in arrivo.</h3>';
             return;
         }
@@ -64,6 +85,7 @@ function caricadati(){
     .catch(err => {
         console.error('Errore nel caricamento dati:', err);
         document.getElementById('tabella-container').textContent = 'Errore nel caricamento dati.';
+    });
     });
 }
 

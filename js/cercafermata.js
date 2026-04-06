@@ -1,3 +1,15 @@
+// API source code: https://github.com/Daniongithub/startfermate-api
+
+// New fallback system (HA)
+const API_ENDPOINT = "https://ertpl-api.vercel.app/startfermate";
+
+async function getApiUrl() {
+  const res = await fetch(API_ENDPOINT);
+  const cfg = await res.json();
+  if (cfg.status !== "ok") return null;
+  return cfg.url;
+}
+
 function populateSearchResults(results, selectedOption) {
     const searchResultsContainer = document.getElementById('searchResults');
     searchResultsContainer.innerHTML = '';
@@ -9,19 +21,14 @@ function populateSearchResults(results, selectedOption) {
 
     results.forEach(item => {
         const div = document.createElement('div');
+        const url = `fermata.html?palina=${encodeURIComponent(item.palina)}&targetID=${encodeURIComponent(item.targetID)}&selectedOption=${encodeURIComponent(selectedOption)}`;
         div.className = 'search-result';
         div.innerHTML = `
-            <div>
+            <a class="risultato" href="${url}" target="_blank">
                 <h3>${item.nome}</h3>
-                <p>Fermata: ${item.palina}, Target ID: ${item.targetID}</p>
-            </div>
+                <p>Fermata: ${item.palina}</p>
+            </a>
         `;
-
-        div.addEventListener('click', () => {
-            const url = `fermata.html?palina=${encodeURIComponent(item.palina)}&targetID=${encodeURIComponent(item.targetID)}&selectedOption=${encodeURIComponent(selectedOption)}`;
-            window.open(url, "_blank");
-        });
-
         searchResultsContainer.appendChild(div);
     });
 }
@@ -108,10 +115,11 @@ radios.forEach(radio => {
 });
 
 document.getElementById('bacino').addEventListener('change', function(event) {
-    const selectedOption = event.target.value;
+    getApiUrl().then(url => {
+        const selectedOption = event.target.value;
     currentSelectedOption = selectedOption;
 
-    const urlFermate = `https://api.vichingo455.freeddns.org/fermateapi/bacino?selectedOption=${selectedOption}`;
+    const urlFermate = `${url}/bacino?selectedOption=${selectedOption}`;
 
     const radiobuttons = document.getElementById('radios');
     const ricerca = document.getElementById('ricerca');
@@ -134,7 +142,7 @@ document.getElementById('bacino').addEventListener('change', function(event) {
         const resultsContainer = document.getElementById('searchResults');
         resultsContainer.innerHTML = '<p>Caricamento lista fermate in corso...</p>';
         if(selectedOption != "ra"){
-            radiobuttons.setAttribute("style", "display: none;");
+            radiobuttons.setAttribute("style", "display: none !important;");
         }
         fetch(urlFermate)
         .then(res => res.json())
@@ -147,4 +155,5 @@ document.getElementById('bacino').addEventListener('change', function(event) {
             console.error('Errore:', err);
         });
     }
+    });
 });
