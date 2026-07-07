@@ -11,9 +11,9 @@ async function getApiUrl() {
 }
 
 const params = new URLSearchParams(window.location.search);
-const palina = params.get('palina');
-const targetID = params.get('targetID');
-const selectedOption = params.get('selectedOption');
+const cod = params.get('cod');
+const tID = params.get('tID');
+const prov = params.get('prov');
 /*
 Anche se det e' null non c'e' problema: la API aspetta sia "true", altrimenti la visualizzazione non cambia.
 det impostato a "true" dice all'API di fornire l'output in maniera intera, senza applicare un filtro che scarta schifezze,
@@ -22,13 +22,13 @@ ergo, visualizzazione dettagliata, che comunque all'utente finale non serve.
 const det = params.get('det');
 function caricadati(){
     getApiUrl().then(url => {
-        fetch(`${url}/fermata?param=${targetID}&param2=${selectedOption}&palina=${palina}&det=${det}`)
+        fetch(`${url}/fermata?param=${tID}&param2=${prov}&palina=${cod}&det=${det}`)
     .then(res => res.json())
     .then(data => {
         const fermata_span = document.getElementById('fermata-span');
-        if (data[0] && data[0].fermata !== undefined) {
-            fermata_span.innerHTML = `"${data[0].fermata}"`;
-            document.title = `Fermata ${data[0].fermata}`
+        if (data && data.fermata.length !== 0) {
+            fermata_span.innerHTML = `"${data.fermata}"`;
+            document.title = `Fermata ${data.fermata}`
         }
         const container = document.getElementById('tabella-container');
         container.innerHTML = '';
@@ -38,10 +38,10 @@ function caricadati(){
         .then(versione => document.getElementById("ver").innerHTML = versione);
         
         /*
-        Se capita una fermata pulita dall'API, perche' contiene solo spazzatura, rimane solo data[0], che però fa creare al JS la thead
+        Se capita una fermata pulita dall'API, perche' contiene solo spazzatura, bus[] fa creare al JS la thead
         anche se non ci sono risultati effettivi.
         */
-        if (!data || data.length === 0 || !data[1]) {
+        if (!data || data.bus.length === 0) {
             container.innerHTML = '<h3>Nessuna linea in arrivo.</h3>';
             return;
         }
@@ -55,7 +55,7 @@ function caricadati(){
                     <tr>
                         <th>Linea</th>
                         <th>Destinazione</th>
-                        <th>Orario</th>
+                        <th>Orario previsto</th>
                         <th>Stato attuale</th>
                         <th>Veicolo</th>
                     </tr>
@@ -64,18 +64,27 @@ function caricadati(){
 
         // Corpo tabella
         const tbody = document.createElement('tbody');
-        data.slice(1).forEach(item => {
+        data.bus.forEach(corsa => {
             const tr = document.createElement('tr');
-            if (item.soppressa) {
+            if (corsa.soppressa) {
                 tr.classList.add('bus-card-red');
             }
             tr.innerHTML = `
-                        <td>${item.linea}</td>
-                        <td>${item.destinazione}</td>
-                        <td>${item.orario}</td>
-                        <td>${item.stato}</td>
-                        <td>${item.mezzo}</td>
-                    `;
+                        <td>${corsa.linea}</td>
+                        <td>${corsa.destinazione}</td>
+                        <td>${corsa.orario}</td>
+                        <td>${corsa.stato}</td>
+                        <td>${corsa.mezzo}</td>
+            `;
+            
+            const statoTd = tr.children[3];
+
+            if (/^\+(?:[4-9]|\d{2,})\s*minuti$/i.test(corsa.stato) || /^\-(?:[4-9]|\d{2,})\s*minuti$/i.test(corsa.stato)) {
+                statoTd.classList.add("ritardo");
+            } /*else if (/^[-]\d+\s+minuti$/i.test(corsa.stato)) {
+                statoTd.classList.add("anticipo");
+            }*/
+            
             tbody.appendChild(tr);
         });
         table.appendChild(tbody);
@@ -92,4 +101,4 @@ function caricadati(){
 caricadati();
 
 
-setInterval(caricadati, 60000);
+setInterval(caricadati, 30000);
